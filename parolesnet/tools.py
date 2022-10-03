@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import inquirer
 from parolesnet.paroles import ParolesSearch
+import requests
+import asyncio
 
 
 def inquir(query):
@@ -16,3 +18,12 @@ def override_parameters():
     choices = [(k, v) for k, v in sorted(results.items())]
     artist = inquir(inquirer.List("artist", message="Choose the desired artist", choices=choices))
     return artist
+
+
+def http_get_sync(url: str, allow_redirects: bool = True):
+    response = requests.get(url, allow_redirects=allow_redirects)
+    return response
+
+
+async def http_get(url: str, allow_redirects: bool = True):
+    return await asyncio.to_thread(http_get_sync, url, allow_redirects)

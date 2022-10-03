@@ -9,6 +9,10 @@ import sys
 import asyncio
 import re
 from parolesnet import default_values
+from parolesnet import tools
+from tqdm.asyncio import tqdm
+from time import perf_counter
+
 
 ROOT_URL = "https://www.paroles.net"
 
@@ -31,7 +35,8 @@ class Song(BaseModel):
         url = self.url
         if not self.url.lower().startswith(ROOT_URL):
             url = ROOT_URL + self.url
-        res = requests.get(url)
+        # res = requests.get(url)
+        res = await tools.http_get(url)
         soup = BeautifulSoup(res.text, features="html.parser")
         meta = soup.find("script", attrs={"type": "application/ld+json"})
         meta_data = json.loads(meta.text.strip())
@@ -107,14 +112,26 @@ class ArtistSearch(BaseModel):
         return songs_url
 
     def get_infos(self):
+        # time_before = perf_counter()
         asyncio.run(self.get_infos_all_songs())
+        # print(f"Search time (asynchronous): {perf_counter() - time_before}")
+
+        # time_before = perf_counter()
+        # for song in self.songs:
+        #     song.get_infos()
+        # print(f"Search time (synchronous): {perf_counter() - time_before}")
 
     async def get_infos_all_songs(self):
-        await asyncio.gather(*[song.get_infos_async() for song in self.songs])
+        responses = [
+            await f
+            for f in tqdm(asyncio.as_completed([song.get_infos_async() for song in self.songs]), total=len(self.songs))
+        ]
+        # await asyncio.gather(*[song.get_infos_async() for song in self.songs])
 
     @staticmethod
     async def get_links(url):
-        res = requests.get(url)
+        # res = requests.get(url)
+        res = await tools.http_get(url)
         soup = BeautifulSoup(res.text, features="html.parser")
         all_urls = {}
         for elem in soup.find_all("p", attrs={"itemprop": "name"}):
