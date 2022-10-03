@@ -124,11 +124,7 @@ class ArtistSearch(BaseModel):
         # print(f"Search time (synchronous): {perf_counter() - time_before}")
 
     async def get_infos_all_songs(self):
-        responses = [
-            await f
-            for f in tqdm(asyncio.as_completed([song.get_infos_async() for song in self.songs]), total=len(self.songs))
-        ]
-        # await asyncio.gather(*[song.get_infos_async() for song in self.songs])
+        await tqdm.gather(*[song.get_infos_async() for song in self.songs])
 
     @staticmethod
     async def get_links(url):
