@@ -9,7 +9,7 @@ import sys
 import asyncio
 import re
 from parolesnet import default_values
-from parolesnet import tools
+
 from tqdm.asyncio import tqdm
 from time import perf_counter
 
@@ -32,6 +32,8 @@ class Song(BaseModel):
         asyncio.run(self.get_infos_async())
 
     async def get_infos_async(self) -> None:
+        from parolesnet import tools
+
         url = self.url
         if not self.url.lower().startswith(ROOT_URL):
             url = ROOT_URL + self.url
@@ -130,6 +132,8 @@ class ArtistSearch(BaseModel):
 
     @staticmethod
     async def get_links(url):
+        from parolesnet import tools
+
         # res = requests.get(url)
         res = await tools.http_get(url)
         soup = BeautifulSoup(res.text, features="html.parser")
