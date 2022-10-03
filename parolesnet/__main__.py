@@ -3,6 +3,7 @@ import os
 import sys
 import click
 import inquirer
+import jinxed.terminfo.vtwin10  # Hidden import for compilation
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
